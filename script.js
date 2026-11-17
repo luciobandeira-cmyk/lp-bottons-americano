@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body,
         keepalive: true
-      }).catch(() => {});
+      }).catch(() => { });
     }
   };
 
@@ -216,11 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
     carousel.addEventListener("focusout", (e) => {
       if (!carousel.contains(e.relatedTarget)) startAuto();
     });
-    carousel.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") manualGoTo(current - 1);
-      if (e.key === "ArrowRight") manualGoTo(current + 1);
-    });
-
     let touchStartX = 0;
     carousel.addEventListener("touchstart", (e) => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
     carousel.addEventListener("touchend", (e) => {

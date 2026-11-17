@@ -11,52 +11,73 @@
  */
 
 var EMAIL_DESTINO = "atendimento@botonsecia.com.br";
+var NOME_ABA = "Página1";
+
+var CABECALHO = [
+  "Data/Hora",
+  "Protocolo",
+  "Canal",
+  "Nome / Empresa",
+  "WhatsApp / Telefone",
+  "E-mail",
+  "Quantidade",
+  "Observações",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "gclid",
+  "gad_source",
+  "fbclid",
+  "URL de Entrada",
+  "Referrer"
+];
+
+// Impede que um texto enviado pelo formulário vire fórmula na planilha (=, +, -, @)
+function seguro(valor) {
+  var texto = String(valor == null ? "" : valor).slice(0, 2000);
+  return /^[=+\-@]/.test(texto) ? "'" + texto : texto;
+}
 
 function doPost(e) {
+  var lock = LockService.getScriptLock();
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    lock.waitLock(10000);
 
-    // Cria cabeçalho automático na primeira execução
+    var planilha = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = planilha.getSheetByName(NOME_ABA) || planilha.getSheets()[0];
+
+    // Cria cabeçalho automático se a aba estiver vazia
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        "Data/Hora",
-        "Protocolo",
-        "Canal",
-        "Nome / Empresa",
-        "WhatsApp / Telefone",
-        "E-mail",
-        "Quantidade",
-        "Observações",
-        "utm_source",
-        "utm_medium",
-        "utm_campaign",
-        "utm_term",
-        "utm_content",
-        "gclid",
-        "URL de Entrada"
-      ]);
-      sheet.getRange(1, 1, 1, 15).setFontWeight("bold");
+      sheet.appendRow(CABECALHO);
+      sheet.getRange(1, 1, 1, CABECALHO.length).setFontWeight("bold");
     }
 
-    var data = JSON.parse(e.postData.contents || "{}");
+    var data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
 
     sheet.appendRow([
       data.timestamp || new Date().toISOString(),
-      data.protocolo || "",
-      data.canal || "",
-      data.nome || "",
-      data.telefone || "",
-      data.email || "",
-      data.quantidade || "",
-      data.observacoes || "",
-      data.utm_source || "",
-      data.utm_medium || "",
-      data.utm_campaign || "",
-      data.utm_term || "",
-      data.utm_content || "",
-      data.gclid || "",
-      data.landing_url || ""
-    ]);
+      data.protocolo,
+      data.canal,
+      data.nome,
+      data.telefone,
+      data.email,
+      data.quantidade,
+      data.observacoes,
+      data.utm_source,
+      data.utm_medium,
+      data.utm_campaign,
+      data.utm_term,
+      data.utm_content,
+      data.gclid,
+      data.gad_source,
+      data.fbclid,
+      data.landing_url,
+      data.referrer
+    ].map(seguro));
+
+    lock.releaseLock();
 
     // Envia notificação por e-mail para todo cadastro no formulário
     if (data.canal === "formulario" || data.canal === "formulario_abaixo_minimo") {
@@ -73,13 +94,15 @@ function doPost(e) {
         "Quantidade estimada: " + (data.quantidade || "-"),
         "Observações: " + (data.observacoes || "-"),
         "",
-        "--- Rastreamento (UTMs / Google Ads) ---",
+        "--- Rastreamento (UTMs / Google Ads / Meta) ---",
         "utm_source: " + (data.utm_source || "-"),
         "utm_medium: " + (data.utm_medium || "-"),
         "utm_campaign: " + (data.utm_campaign || "-"),
         "utm_term: " + (data.utm_term || "-"),
         "utm_content: " + (data.utm_content || "-"),
-        "gclid: " + (data.gclid || "-")
+        "gclid: " + (data.gclid || "-"),
+        "fbclid: " + (data.fbclid || "-"),
+        "URL de entrada: " + (data.landing_url || "-")
       ].join("\n");
 
       var mailOptions = {
@@ -87,7 +110,7 @@ function doPost(e) {
         subject: assunto,
         body: corpo
       };
-      if (data.email) {
+      if (data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
         mailOptions.replyTo = data.email;
       }
 
@@ -98,6 +121,7 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ ok: true }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
+    try { lock.releaseLock(); } catch (ignore) {}
     return ContentService
       .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
       .setMimeType(ContentService.MimeType.JSON);
