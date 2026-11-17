@@ -1236,14 +1236,42 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .hero-grid {
+    gap: 1.5rem;
+  }
+
+  .hero-copy {
+    display: contents;
+  }
+
+  .hero-copy h1 {
+    order: 1;
+    margin-bottom: 0;
+  }
+
+  .hero-copy .lead {
+    order: 2;
+    margin-bottom: 0;
+  }
+
+  .hero-visual {
+    order: 3;
+    width: 100%;
+    max-width: 420px;
+    margin-inline: auto;
+  }
+
+  .hero-metrics {
+    order: 4;
+    margin: 0;
+  }
+
+  .hero-actions {
+    order: 5;
+  }
+
   .cf-prev { left: 0.5rem; }
   .cf-next { right: 0.5rem; }
-}
-
-@media (max-width: 1024px) {
-  .hero-visual img {
-    max-width: 520px;
-  }
 }
 
 @media (max-width: 768px) {
