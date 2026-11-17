@@ -1,16 +1,16 @@
 /**
- * Google Apps Script — Receptor de Leads + UTMs + Protocolo (Bottons & Cia)
+ * Google Apps Script — Receptor de Leads + Planilha + E-mail (Bottons & Cia)
  *
- * Como instalar (100% gratuito, sem n8n/Make):
- * 1. Crie uma nova Planilha no Google Sheets.
- * 2. No menu superior, clique em: Extensões > Apps Script.
- * 3. Apague o código padrão e cole todo este arquivo.
- * 4. Clique em: Implantar > Nova implantação > Tipo: App da Web.
- *    - Executar como: Eu (sua conta)
- *    - Quem pode acessar: Qualquer pessoa
- * 5. Autorize e copie a URL gerada (termina em /exec).
- * 6. Cole essa URL na constante WEBHOOK_URL (linha 4) de projects/botons-e-cia/script.js.
+ * Como instalar / atualizar (100% gratuito, sem n8n/Make):
+ * 1. Abra sua Planilha Google > Extensões > Apps Script.
+ * 2. Apague o código antigo e cole todo este arquivo.
+ * 3. Clique em: Implantar > Gerenciar implantações > Editar (ícone de lápis) > Nova versão > Implantar.
+ *    (Se for a primeira vez: Implantar > Nova implantação > Tipo: App da Web > Executar como: Eu > Quem pode acessar: Qualquer pessoa.)
+ * 4. Na primeira autorização, aceite a permissão de envio de e-mail (MailApp).
+ * 5. Copie a URL gerada (termina em /exec) e cole na constante WEBHOOK_URL (linha 4) de projects/botons-e-cia/script.js.
  */
+
+var EMAIL_DESTINO = "atendimento@botonsecia.com.br";
 
 function doPost(e) {
   try {
@@ -57,6 +57,42 @@ function doPost(e) {
       data.gclid || "",
       data.landing_url || ""
     ]);
+
+    // Envia notificação por e-mail para todo cadastro no formulário
+    if (data.canal === "formulario" || data.canal === "formulario_abaixo_minimo") {
+      var prefixo = data.canal === "formulario_abaixo_minimo" ? "[Abaixo de 150 unid.] " : "";
+      var assunto = prefixo + "Novo Lead LP Botton Americano — " + (data.nome || "Sem nome") + " (" + (data.protocolo || "") + ")";
+
+      var corpo = [
+        "Novo cadastro recebido na Landing Page de Botton Americano:",
+        "",
+        "Protocolo: " + (data.protocolo || "-"),
+        "Nome / Empresa: " + (data.nome || "-"),
+        "WhatsApp / Telefone: " + (data.telefone || "-"),
+        "E-mail: " + (data.email || "-"),
+        "Quantidade estimada: " + (data.quantidade || "-"),
+        "Observações: " + (data.observacoes || "-"),
+        "",
+        "--- Rastreamento (UTMs / Google Ads) ---",
+        "utm_source: " + (data.utm_source || "-"),
+        "utm_medium: " + (data.utm_medium || "-"),
+        "utm_campaign: " + (data.utm_campaign || "-"),
+        "utm_term: " + (data.utm_term || "-"),
+        "utm_content: " + (data.utm_content || "-"),
+        "gclid: " + (data.gclid || "-")
+      ].join("\n");
+
+      var mailOptions = {
+        to: EMAIL_DESTINO,
+        subject: assunto,
+        body: corpo
+      };
+      if (data.email) {
+        mailOptions.replyTo = data.email;
+      }
+
+      MailApp.sendEmail(mailOptions);
+    }
 
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true }))
