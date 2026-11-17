@@ -316,8 +316,9 @@ p {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
   gap: 1.25rem;
-  padding: 1.25rem 0;
+  padding: 1.15rem 0;
   margin: 0 0 1.85rem;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -327,6 +328,22 @@ p {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+}
+
+.metric-item-highlight {
+  background: var(--navy);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border-left: 3px solid var(--gold);
+}
+
+.metric-item-highlight .metric-value {
+  color: #e6c675;
+}
+
+.metric-item-highlight .metric-label {
+  color: #e5e9f2;
+  font-weight: 500;
 }
 
 .metric-value {
@@ -888,6 +905,11 @@ p {
   color: var(--navy);
 }
 
+.label-hint {
+  font-weight: 600;
+  color: var(--gold-dark);
+}
+
 .field input,
 .field select,
 .field textarea {
@@ -1306,6 +1328,19 @@ p {
 
   .brand-divider {
     height: 24px;
+  }
+
+  .hero-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1rem;
+  }
+
+  .metric-item-highlight {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
   }
 
   .btn-header {
