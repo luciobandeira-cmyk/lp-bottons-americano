@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const WHATSAPP_NUMBER = "551130190500";
   // Cole aqui a URL do seu Webhook (Google Apps Script, n8n, Make ou CRM) para registrar UTMs + gclid + protocolo:
-  const WEBHOOK_URL = "";
+  const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzNzehBOKcar2M8e2QqNPfl2YzJ3Q_EOTQmppdZrH46oJLCwCoI9SKGpTbWE5DftPfY/exec";
 
   /* Captura de UTMs / GCLID + Geração de Código de Protocolo */
   const TRACKING_KEY = "bc_tracking_v1";
@@ -260,8 +260,11 @@ document.addEventListener("DOMContentLoaded", () => {
   /* Formulário de orçamento */
   const form = document.getElementById("quote-form");
   if (!form) return;
+  const quoteFields = document.getElementById("quote-fields");
   const successBox = document.getElementById("form-success");
-  const successLink = document.getElementById("form-success-link");
+  const successProtocol = document.getElementById("form-success-protocol");
+  const belowMinBox = document.getElementById("form-below-minimum");
+  const resetQuoteBtn = document.getElementById("reset-quote-form");
   const errorSummary = document.getElementById("form-error-summary");
   const errorList = document.getElementById("form-error-list");
 
@@ -349,45 +352,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (errorSummary) errorSummary.hidden = true;
 
-    const lines = [
-      "Olá! Quero um orçamento de botton americano personalizado.",
-      "",
-      `Nome/empresa: ${valueOf("nome")}`,
-      `WhatsApp: ${valueOf("telefone")}`,
-      `E-mail: ${valueOf("email")}`,
-      `Quantidade: ${valueOf("quantidade")}`
-    ];
+    const quantidade = valueOf("quantidade");
+    const isBelowMinimum = quantidade === "Menos de 150 peças";
     const notes = valueOf("observacoes");
-    if (notes) lines.push(`Observações: ${notes}`);
-    lines.push("", `Código de Protocolo: ${trackingData.protocolo}`);
-
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
 
     sendTrackingWebhook({
-      canal: "formulario",
+      canal: isBelowMinimum ? "formulario_abaixo_minimo" : "formulario",
       nome: valueOf("nome"),
       telefone: valueOf("telefone"),
       email: valueOf("email"),
-      quantidade: valueOf("quantidade"),
+      quantidade,
       observacoes: notes
     });
+
+    if (isBelowMinimum) {
+      if (quoteFields) quoteFields.hidden = true;
+      if (successBox) successBox.hidden = true;
+      if (belowMinBox) {
+        belowMinBox.hidden = false;
+        belowMinBox.focus({ preventScroll: true });
+      }
+      return;
+    }
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "generate_lead",
       form_id: "quote-form",
-      quantidade: valueOf("quantidade"),
+      quantidade,
       protocolo: trackingData.protocolo,
       utm_source: trackingData.utm_source || "",
       utm_campaign: trackingData.utm_campaign || ""
     });
 
-    if (successLink) successLink.href = url;
+    if (quoteFields) quoteFields.hidden = true;
+    if (belowMinBox) belowMinBox.hidden = true;
+    if (successProtocol) successProtocol.textContent = `Protocolo ${trackingData.protocolo}`;
     if (successBox) {
       successBox.hidden = false;
       successBox.focus({ preventScroll: true });
     }
+  });
 
-    window.open(url, "_blank", "noopener");
+  resetQuoteBtn?.addEventListener("click", () => {
+    if (belowMinBox) belowMinBox.hidden = true;
+    if (quoteFields) quoteFields.hidden = false;
+    document.getElementById("quantidade")?.focus();
   });
 });

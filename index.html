@@ -371,12 +371,13 @@
         </div>
 
         <form id="quote-form" class="quote-form" novalidate aria-labelledby="orcamento-title">
-          <div id="form-error-summary" class="form-error-summary" role="alert" tabindex="-1" hidden>
-            <strong>Corrija os campos abaixo antes de enviar:</strong>
-            <ul id="form-error-list"></ul>
-          </div>
+          <div id="quote-fields" class="quote-fields">
+            <div id="form-error-summary" class="form-error-summary" role="alert" tabindex="-1" hidden>
+              <strong>Corrija os campos abaixo antes de enviar:</strong>
+              <ul id="form-error-list"></ul>
+            </div>
 
-          <div class="field">
+            <div class="field">
             <label for="nome">Seu nome ou empresa</label>
             <input id="nome" name="nome" type="text" placeholder="Ex.: Mariana, Agência Pulse" required autocomplete="name" aria-describedby="err-nome" />
             <span class="field-error" id="err-nome" aria-live="polite"></span>
@@ -398,6 +399,7 @@
             <label for="quantidade">Quantidade estimada <span class="label-hint">(mínimo 150 peças)</span></label>
             <select id="quantidade" name="quantidade" required aria-describedby="err-quantidade">
               <option value="">Selecione uma faixa</option>
+              <option value="Menos de 150 peças">Menos de 150 peças</option>
               <option value="150 a 300 unidades">150 a 300 unidades</option>
               <option value="300 a 500 unidades">300 a 500 unidades</option>
               <option value="500 a 1.000 unidades">500 a 1.000 unidades</option>
@@ -412,11 +414,20 @@
           </div>
 
           <button type="submit" class="btn btn-primary btn-full btn-lg">Faça um Orçamento</button>
-          <p class="form-note">Ao enviar, abrimos o WhatsApp com o seu pedido já preenchido. Seus dados são usados só para este orçamento.</p>
+          <p class="form-note">Seus dados são usados exclusivamente para preparar o seu orçamento.</p>
+          </div>
 
           <div id="form-success" class="form-success" hidden role="status" tabindex="-1">
-            <strong>Pedido pronto!</strong> Abrimos o WhatsApp com os dados do seu orçamento; é só tocar em enviar.
-            Se a janela não abriu, <a id="form-success-link" href="https://wa.me/551130190500" target="_blank" rel="noopener noreferrer">clique aqui para continuar</a>.
+            <strong>Solicitação enviada!</strong> Recebemos os seus dados (<span id="form-success-protocol"></span>) e nossa equipe comercial retornará em breve com os valores para a sua tiragem.
+          </div>
+
+          <div id="form-below-minimum" class="form-below-minimum" hidden role="status" tabindex="-1">
+            <strong>Pedido mínimo personalizado: 150 unidades</strong>
+            <p>
+              Não produzimos peças personalizadas abaixo de 150 unidades. Para quantidades menores, você pode consultar peças avulsas à pronta entrega em nosso site:
+            </p>
+            <a href="https://loja.botonsecia.com.br/" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-full">Acessar Loja Pronta Entrega →</a>
+            <button type="button" class="btn-link-reset" id="reset-quote-form">Voltar e alterar quantidade</button>
           </div>
         </form>
       </div>
