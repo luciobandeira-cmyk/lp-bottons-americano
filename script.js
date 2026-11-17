@@ -5,11 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* Captura de UTMs / GCLID + Geração de Código de Protocolo */
   const TRACKING_KEY = "bc_tracking_v1";
+  const PROTOCOL_PREFIX = "BAV4-";
   const TRACKED_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gad_source", "fbclid"];
 
   const generateProtocol = () => {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let code = "BC-";
+    let code = PROTOCOL_PREFIX;
     for (let i = 0; i < 5; i += 1) {
       code += chars[Math.floor(Math.random() * chars.length)];
     }
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    if (!saved.protocolo) {
+    if (!saved.protocolo || !String(saved.protocolo).startsWith(PROTOCOL_PREFIX)) {
       saved.protocolo = generateProtocol();
     }
     if (hasNewParam || !saved.landing_url) {
