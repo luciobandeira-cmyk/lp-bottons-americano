@@ -89,13 +89,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     link.addEventListener("click", () => {
-      sendTrackingWebhook({ canal: "whatsapp_direto" });
+      const location =
+        link.closest("header") ? "header" :
+        link.closest(".hero") ? "hero" :
+        link.closest("#detalhes") ? "detalhes" :
+        link.closest("#orcamento") ? "orcamento_link" :
+        link.closest("#faq") ? "faq" :
+        link.closest("footer") ? "rodape" :
+        link.classList.contains("whatsapp-float") ? "whatsapp_flutuante" : "outro";
+
+      sendTrackingWebhook({ canal: "whatsapp_direto", button_location: location });
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "whatsapp_click",
+        button_location: location,
         protocolo: trackingData.protocolo,
         utm_source: trackingData.utm_source || "",
-        utm_campaign: trackingData.utm_campaign || ""
+        utm_medium: trackingData.utm_medium || "",
+        utm_campaign: trackingData.utm_campaign || "",
+        utm_term: trackingData.utm_term || "",
+        utm_content: trackingData.utm_content || "",
+        gclid: trackingData.gclid || ""
       });
     });
   });
@@ -362,6 +376,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (isBelowMinimum) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "generate_lead_below_minimum",
+        form_id: "quote-form",
+        quantidade,
+        protocolo: trackingData.protocolo,
+        utm_source: trackingData.utm_source || "",
+        utm_campaign: trackingData.utm_campaign || ""
+      });
       if (quoteFields) quoteFields.hidden = true;
       if (successBox) successBox.hidden = true;
       if (belowMinBox) {
@@ -378,7 +401,11 @@ document.addEventListener("DOMContentLoaded", () => {
       quantidade,
       protocolo: trackingData.protocolo,
       utm_source: trackingData.utm_source || "",
-      utm_campaign: trackingData.utm_campaign || ""
+      utm_medium: trackingData.utm_medium || "",
+      utm_campaign: trackingData.utm_campaign || "",
+      utm_term: trackingData.utm_term || "",
+      utm_content: trackingData.utm_content || "",
+      gclid: trackingData.gclid || ""
     });
 
     if (quoteFields) quoteFields.hidden = true;
